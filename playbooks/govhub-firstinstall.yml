@@ -1,0 +1,125 @@
+- name: Installazione Govhub
+  hosts: govhub_servers
+  become: true
+  tasks:
+    - name: Installazione software
+      block:
+        - name: Creo gruppo di servizio. "{{ tomcat_group | default(tomcat_user, 'true') }}"
+          become: true
+          ansible.builtin.group:
+            name: "{{ tomcat_group | default(tomcat_user, 'true') }}"
+        - name: Creo utente di servizio. {{ tomcat_user }}
+          become: true
+          ansible.builtin.user:
+            name: "{{ tomcat_user }}"
+            group: "{{ tomcat_group | default(tomcat_user, 'true') }}"
+        - name: Installazione pacchetti di sistema
+          become: true
+          ansible.builtin.package:
+            name:
+              - tar
+              - gzip
+              - rsync
+              - nginx
+              - java-11-openjdk-headless
+          # ignore_errors: yes
+        - name: Verifico esistenza di una installazione tomcat
+          ansible.builtin.stat:
+            path: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/conf/server.xml"
+          register: server_xml
+
+        - name: Scarico e scompatto l'archivio di installazione tomcat
+          when: not server_xml.stat.exists
+          block:
+            - name: Download tomcat
+              ansible.builtin.get_url:
+                url: https://archive.apache.org/dist/tomcat/tomcat-{{ tomcat_version.split('.') | first }}/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz
+                dest: /tmp/apache-tomcat-{{ tomcat_version }}.tar.gz
+                mode: "0644"
+            - name: Decomprimo l'archivio tomcat
+              become: true
+              ansible.builtin.unarchive:
+                src: /tmp/apache-tomcat-{{ tomcat_version }}.tar.gz
+                dest: "{{ tomcat_install_dir }}"
+                mode: "0755"
+                owner: "{{ tomcat_user }}"
+                group: "{{ tomcat_group | default(tomcat_user, 'true') }}"
+                remote_src: true
+            - name: Elimino applicazioni inutili
+              ansible.builtin.file:
+                path: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/webapps/{{ item }}"
+                state: absent
+              loop:
+                - docs
+                - examples
+                - host-manager
+                - manager
+                - ROOT
+
+        - name: Configuro l'istanza tomcat
+          tags: [config]
+          ansible.builtin.template:
+            src: "{{ item.tmplt }}"
+            dest: "{{ item.flpth }}"
+            mode: "0644"
+            owner: "{{ tomcat_user }}"
+            group: "{{ tomcat_group | default(tomcat_user, 'true') }}"
+          loop:
+            - tmplt: server.xml.j2
+              flpth: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/conf/server.xml"
+        - name: Creo directory per i context.xml applicativi
+          tags: [config]
+          ansible.builtin.file:
+            path: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/conf/Catalina/localhost/"
+            state: directory
+            recurse: true
+            mode: "0755"
+            owner: "{{ tomcat_user }}"
+            group: "{{ tomcat_group | default(tomcat_user, 'true') }}"
+        - name: Installo system unit
+          tags: [config]
+          ansible.builtin.template:
+            src: "{{ item.tmplt }}"
+            dest: "{{ item.flpth }}"
+            mode: "0644"
+            owner: root
+            group: root
+          loop:
+            - tmplt: tomcat.j2
+              flpth: /etc/default/tomcat
+            - tmplt: tomcat.service.j2
+              flpth: /etc/systemd/system/tomcat.service
+        - name: Reload systemd
+          ansible.builtin.systemd:
+            daemon_reload: true
+        - name: Configurazione frontend Nginx
+          tags: [config, frontend]
+          ansible.builtin.template:
+            src: "{{ item.tmplt }}"
+            dest: "{{ item.flpth }}"
+            mode: "0644"
+            owner: root
+            group: root
+          loop:
+            - tmplt: nginx.conf.j2
+              flpth: /etc/nginx/nginx.conf
+            - tmplt: govhub.conf.j2
+              flpth: /etc/nginx/default.d/govhub.conf
+            - tmplt: upstream.conf.j2
+              flpth: /etc/nginx/conf.d/upstream.conf
+ 
+
+- name: Installazione Govhub
+  hosts: all
+  become: true
+  vars:
+    forza_contenuti_originali: false
+  vars_files:
+    - software.yml
+  tasks:
+    - name: Esegui i task per ogni applicazione
+      ansible.builtin.include_tasks:
+        file: work.yml
+      loop: "{{ govhub_applicazioni_be + govhub_applicazioni_fe }}"
+      loop_control:
+        loop_var: govhub_app
