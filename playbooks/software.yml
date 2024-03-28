@@ -1,0 +1,21 @@
+govhub_applicazioni_be:
+  - nome: "govio-batch"
+    versione: "1.2.0"
+  - nome: "govio"
+    versione: "1.1.1"
+  - nome: "govhub-reverse-proxy"
+    versione: "1.2.0"
+  - nome: "govregistry"
+    versione: "1.0.0"
+  - nome: "govio-planner"
+    versione: "1.0.0"
+
+govhub_applicazioni_fe:
+  - nome: "govio-app"
+    versione: "1.1.1"
+  - nome: "govshell-app"
+    versione: "1.1.0"
+  - nome: "govregistry-app"
+    versione: "1.0.1"
+  - nome: "govio-planner-app"
+    versione: "1.0.0"

@@ -1,0 +1,24 @@
+all:
+  children:
+    govhub_servers:
+      vars:
+        tomcat_version: '9.0.70'
+        tomcat_user: 'tomcat'
+        tomcat_install_dir: '/opt'
+        tomcat_port_offset: 3
+        govhub_software_dir: "DIRECTORY_SOFTWARE"
+        govhub_application_properties_dir: '/etc/govhub'
+        govhub_application_log_dir: '/var/log/govhub'
+        govhub_application_jdbc_url: jdbc:mysql://SERVER/DATABASE
+        govhub_application_dbuser: "USERNAME"
+        govhub_application_dbpass: "PASSWORD"
+
+        govhub_hostname: "HOSTNAME"
+        
+        govio_application_api_url: "https://{{ govhub_hostname }}/govhub-reverse-proxy/govio/api/v1"
+        govshell_application_api_url: "https://{{ govhub_hostname }}/govhub-reverse-proxy"
+        
+        deploy_fe: true
+      hosts:
+        localhost:
+          ansible_connection: local

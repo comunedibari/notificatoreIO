@@ -1,0 +1,22 @@
+- name: Installazione Govhub
+  hosts: govhub_servers
+  become: true
+  vars:
+    forza_contenuti_originali: false
+  vars_prompt:
+    name: "app_list"
+    prompt: "Inserisci la lista di applicazioni da aggiornare (separate da virgola)"
+    private: false
+  tasks:
+    - name: Converti la stringa di input in una lista
+      ansible.builtin.set_fact:
+        apps_to_update: "{{ app_list.split(',') }}"
+
+    - name: Esegui i task per ogni applicazione
+      vars:
+        ask_for_version: true
+      ansible.builtin.include_tasks:
+        file: work.yml
+      loop: "{{ apps_to_update }}"
+      loop_control:
+        loop_var: app

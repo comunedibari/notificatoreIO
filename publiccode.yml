@@ -1,0 +1,66 @@
+# This repository adheres to the publiccode.yml standard by including this 
+# metadata file that makes public software easily discoverable.
+# More info at https://github.com/italia/publiccode.yml
+
+publiccodeYmlVersion: '0.2'
+categories:
+  - communications
+description:
+  it:
+    features:
+      - Gestione messaggi basati su template
+      - Invio di messaggi singoli o massivo
+      - Interazione via WebApp o REST API
+    genericName: Notificatore IO
+    localisedName: Notificatore IO
+    longDescription: |
+      Il NotificatoreIO consente ad una PA di inviare messaggi ai cittadini
+      tramite l'AppIO. 
+
+
+      Permette al gestore della piattaforma di configurare il contenuto dei
+      messaggi nella forma di template dei quali l'operatore/applicazione deve
+      poi valorizzare le parti variabili. 
+
+
+      La piattaforma permette l'invio massivo di messaggi pianificandone la
+      spedizione e successivamente verifica l'esito della spedizione tramite
+      l'upload di tracciati CSV, oppure l'invio di singoli messaggi tramite
+      compilazione di form. Le medesime funzionalita' sono rese disponibili
+      anche tramite API REST.
+    shortDescription: |
+      Servizio di notifica di messaggi all'AppIO 
+developmentStatus: stable
+inputTypes:
+  - application/x.empty
+it:
+  conforme:
+    gdpr: false
+    lineeGuidaDesign: false
+    misureMinimeSicurezza: false
+    modelloInteroperabilita: false
+  countryExtensionVersion: '0.2'
+  piattaforme:
+    anpr: false
+    cie: false
+    pagopa: false
+    spid: false
+legal:
+  license: GPL-3.0-or-later
+localisation:
+  availableLanguages:
+    - it
+  localisationReady: true
+maintenance:
+  contacts:
+    - name: Michelangelo Mariano
+  type: community
+name: NotificatoreIO
+outputTypes:
+  - application/x.empty
+platforms:
+  - web
+releaseDate: '2024-03-25'
+softwareType: standalone/other
+softwareVersion: 1.0.0
+url: 'https://github.com/comunedibari/notificatoreIO'

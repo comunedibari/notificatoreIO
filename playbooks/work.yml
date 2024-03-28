@@ -1,0 +1,132 @@
+- name: Richiesta versione
+  when: ask_for_version | default(false,true)
+  block:
+  - name: INPUT. Versione di aggiornamento {{ app }}
+    ansible.builtin.pause:
+      prompt: "Inserisci la versione a cui aggiornare {{ app }}: "
+    register: version_response
+  - name: Imposta la variabile ver con la versione inserita
+    set_fact:
+      govhub_app:
+        nome: "{{ app }}"
+        versione: "{{ version_response.user_input | trim }}"
+    when: version_response.user_input is defined
+
+
+- name: Verifica presenza aggiornamenti
+  block:
+    - name: Verifica pacchetto backend
+      ansible.builtin.stat:
+        path: "{{ govhub_software_dir }}/{{ govhub_app.nome }}-{{ govhub_app.versione }}.war"
+      register: pacchetto_backend
+    - name: Verifica pacchetto frontend
+      ansible.builtin.stat:
+        path: "{{ govhub_software_dir }}/{{ govhub_app.nome }}-{{ govhub_app.versione }}.tgz"
+      register: pacchetto_frontend
+
+
+- name: Aggiornamento pacchetto di backend
+  when: pacchetto_backend.stat.exists
+  block:
+    - name: Configuro i context.xml applicativi
+      tags: [config, context]
+      ansible.builtin.template:
+        src: tomcat_context.xml.j2
+        dest: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/conf/Catalina/localhost/{{ govhub_app.nome }}.xml"
+        mode: "0644"
+        owner: "{{ tomcat_user }}"
+        group: "{{ tomcat_group | default(tomcat_user, 'true') }}"
+
+    - name: Creo directory applicative
+      tags: [config, properties]
+      ansible.builtin.file:
+        path: "{{ govhub_application_properties_dir }}"
+        state: directory
+        mode: "0755"
+        owner: "{{ tomcat_user }}"
+        group: "{{ tomcat_group | default(tomcat_user, 'true') }}"
+      loop:
+        - "{{ govhub_application_log_dir }}"
+        - "{{ govhub_application_properties_dir }}"
+
+    - name: Creo directory temporanee
+      tags: [config, properties]
+      delegate_to: localhost
+      ansible.builtin.file:
+        path: "/tmp/{{ govhub_app.nome }}"
+        state: directory
+        mode: "0755"
+    - name: Estraggo i files di configurazione
+      tags: [config, properties]
+      delegate_to: localhost
+      ansible.builtin.unarchive:
+        src: "{{ govhub_software_dir }}/{{ govhub_app.nome }}-{{ govhub_app.versione }}.war"
+        include:
+          - WEB-INF/classes/application.properties
+        dest: "/tmp/{{ govhub_app.nome }}"
+        mode: "0755"
+    - name: Assicuro la presenza degli application.properties
+      tags: [config, properties]
+      ansible.builtin.copy:
+        src: "/tmp/{{ govhub_app.nome }}/WEB-INF/classes/application.properties"
+        dest: "{{ govhub_application_properties_dir }}/{{ govhub_app.nome }}.properties"
+        force: false
+        owner: root
+        group: "{{ tomcat_group | default(tomcat_user, 'true') }}"
+        mode: "0640"
+    - name: Configuro i servizi di backend
+      tags: [config, properties]
+      ansible.builtin.blockinfile:
+        dest: "{{ govhub_application_properties_dir }}/{{ govhub_app.nome }}.properties"
+        block: |
+          spring.datasource.url={{ govhub_application_jdbc_url }}
+          spring.datasource.username={{ govhub_application_dbuser }}
+          spring.datasource.password={{ govhub_application_dbpass }}
+          logging.directoryPath={{ govhub_application_log_dir }}
+          logging.filePrefix={{ govhub_app.nome }}
+    - name: Deploy artifacts su tomcat
+      ansible.builtin.copy:
+        src: "{{ govhub_software_dir }}/{{ govhub_app.nome }}-{{ govhub_app.versione }}.war"
+        dest: "{{ tomcat_install_dir }}/apache-tomcat-{{ tomcat_version }}/webapps/{{ govhub_app.nome }}.war"
+        owner: "{{ tomcat_user }}"
+        group: "{{ tomcat_group | default(tomcat_user, 'true') }}"
+        mode: "0644"
+
+
+- name: Deploy webapps su nginx
+  when: pacchetto_frontend.stat.exists
+  block:
+    - name: Creo directory temporanee
+      tags: [config, properties]
+      delegate_to: localhost
+      ansible.builtin.file:
+        path: "/tmp/{{ govhub_app.nome }}"
+        state: directory
+        mode: "0755"
+    - name: Estraggo gli asset di configurazione {{ govhub_app.nome }}-{{ govhub_app.versione }}.tgz
+      tags: [config, properties]
+      delegate_to: localhost
+      ansible.builtin.unarchive:
+        src: "{{ govhub_software_dir }}/{{ govhub_app.nome }}-{{ govhub_app.versione }}.tgz"
+        dest: "/tmp/{{ govhub_app.nome }}"
+        include:
+          - dist/{{ govhub_app.nome }}/assets/config/app-config.json
+        mode: "0755"
+        extra_opts: [--strip-components=2] # elimina la directory dist/{{ govhub_app.nome }} presente nell'archivio
+
+    - name: Installazione contenuti statici
+      tags: [frontend]
+      ansible.builtin.unarchive:
+        src: "{{ govhub_software_dir }}/{{ govhub_app.nome }}-{{ govhub_app.versione }}.tgz"
+        dest: "/usr/share/nginx/html/"
+        keep_newer: "{{ forza_contenuti_originali }}"
+        mode: "0755"
+        owner: "root"
+        group: "root"
+        extra_opts: [--strip-components=1] # elimina la directory dist/ presente nell'archivio
+    - name: Customizzazioni asset di configurazione
+      tags: [frontend, config, custom]
+      ansible.builtin.template:
+        src: "/tmp/{{ govhub_app.nome }}/assets/config/app-config.json"
+        dest: "/usr/share/nginx/html/{{ govhub_app.nome }}/assets/config/app-config.json"
+        mode: "0644"
