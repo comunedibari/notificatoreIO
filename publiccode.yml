@@ -15,18 +15,27 @@ description:
     localisedName: Notificatore IO
     longDescription: |
       Il NotificatoreIO consente ad una PA di inviare messaggi ai cittadini
+
       tramite l'AppIO. 
 
 
+
       Permette al gestore della piattaforma di configurare il contenuto dei
+
       messaggi nella forma di template dei quali l'operatore/applicazione deve
+
       poi valorizzare le parti variabili. 
 
 
+
       La piattaforma permette l'invio massivo di messaggi pianificandone la
+
       spedizione e successivamente verifica l'esito della spedizione tramite
+
       l'upload di tracciati CSV, oppure l'invio di singoli messaggi tramite
+
       compilazione di form. Le medesime funzionalita' sono rese disponibili
+
       anche tramite API REST.
     shortDescription: |
       Servizio di notifica di messaggi all'AppIO 
@@ -47,14 +56,16 @@ it:
     spid: false
 legal:
   license: GPL-3.0-or-later
+  repoOwner: Comune di Bari
 localisation:
   availableLanguages:
     - it
   localisationReady: true
 maintenance:
   contacts:
-    - name: Michelangelo Mariano
-  type: community
+    - email: m.mariano@comune.bari.it
+      name: Michelangelo Mariano
+  type: none
 name: NotificatoreIO
 outputTypes:
   - application/x.empty
@@ -64,3 +75,5 @@ releaseDate: '2024-03-25'
 softwareType: standalone/other
 softwareVersion: 1.0.0
 url: 'https://github.com/comunedibari/notificatoreIO'
+usedBy:
+  - Comune di Bari
