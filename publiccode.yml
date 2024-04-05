@@ -16,27 +16,39 @@ description:
     longDescription: |
       Il NotificatoreIO consente ad una PA di inviare messaggi ai cittadini
 
+
       tramite l'AppIO. 
+
 
 
 
       Permette al gestore della piattaforma di configurare il contenuto dei
 
+
       messaggi nella forma di template dei quali l'operatore/applicazione deve
+
 
       poi valorizzare le parti variabili. 
 
 
 
+
       La piattaforma permette l'invio massivo di messaggi pianificandone la
+
 
       spedizione e successivamente verifica l'esito della spedizione tramite
 
+
       l'upload di tracciati CSV, oppure l'invio di singoli messaggi tramite
+
 
       compilazione di form. Le medesime funzionalita' sono rese disponibili
 
+
       anche tramite API REST.
+    screenshots:
+      - |-
+        https://raw.githubusercontent.com/comunedibari/notificatoreIO/master/Govio.PNG
     shortDescription: |
       Servizio di notifica di messaggi all'AppIO 
 developmentStatus: stable
@@ -61,6 +73,8 @@ localisation:
   availableLanguages:
     - it
   localisationReady: true
+logo: |-
+  https://raw.githubusercontent.com/comunedibari/notificatoreIO/master/Logo_govio.PNG
 maintenance:
   contacts:
     - email: m.mariano@comune.bari.it
