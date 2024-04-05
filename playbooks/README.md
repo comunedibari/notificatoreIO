@@ -5,7 +5,7 @@
 4. Hostname con cui esporre gli applicativi Govhub, certificato x509 associato all'hostaneme e relativa chiave privata
 
 # Prima installazione
-1. Scaricare le componenti software per il notificatre in una directory
+1. Scaricare le componenti software per il notificatore in una directory (vedi elenco dei repositori github delle componenti nel file README.md nella cartella radice). Per ogni componente di frontend va effettuata compilazione e confezionamento in tgz (compressione della dist/*), mentre per le componenti di backend va generato l'equivalente file nomeapplicazione-versione.war tramite goal maven.
 2. Installa re ansible sul server notificatore
 ```
 sudo dnf -y install epel-release
