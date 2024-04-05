@@ -14,5 +14,5 @@ I singoli componenti da installare sono nei repository di seguito elencati:
   
 All'interno della cartella playbooks è contenuto il [README.md](playbooks/README.md) con le istruzioni di installazione delle varie componenti e dei prerequisiti.  
 
-
+![NotificatoreIO](/Logo_govio.PNG?raw=true "Optional Title")
  
