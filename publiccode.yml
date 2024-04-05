@@ -88,6 +88,6 @@ platforms:
 releaseDate: '2024-03-25'
 softwareType: standalone/other
 softwareVersion: 1.0.0
-url: 'https://github.com/comunedibari/notificatoreIO'
+url: 'https://github.com/comunedibari/notificatoreIO.git'
 usedBy:
   - Comune di Bari
