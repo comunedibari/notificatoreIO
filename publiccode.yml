@@ -17,7 +17,9 @@ description:
       Il NotificatoreIO consente ad una PA di inviare messaggi ai cittadini
 
 
+
       tramite l'AppIO. 
+
 
 
 
@@ -25,7 +27,9 @@ description:
       Permette al gestore della piattaforma di configurare il contenuto dei
 
 
+
       messaggi nella forma di template dei quali l'operatore/applicazione deve
+
 
 
       poi valorizzare le parti variabili. 
@@ -33,16 +37,21 @@ description:
 
 
 
+
       La piattaforma permette l'invio massivo di messaggi pianificandone la
+
 
 
       spedizione e successivamente verifica l'esito della spedizione tramite
 
 
+
       l'upload di tracciati CSV, oppure l'invio di singoli messaggi tramite
 
 
+
       compilazione di form. Le medesime funzionalita' sono rese disponibili
+
 
 
       anche tramite API REST.
@@ -66,6 +75,8 @@ it:
     cie: false
     pagopa: false
     spid: false
+  riuso:
+    codiceIPA: c_a662
 legal:
   license: GPL-3.0-or-later
   repoOwner: Comune di Bari
